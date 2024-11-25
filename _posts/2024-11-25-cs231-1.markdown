@@ -1,0 +1,6 @@
+---
+layout: post
+title:  "CS231"
+date:   2024-11-25 19:27:29 +0900
+categories: CS231
+---
