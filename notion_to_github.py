@@ -188,16 +188,30 @@ class NotionToGitHub:
         """Jekyll 형식의 포스트 생성"""
         # Front matter 작성
         yaml_front_matter = "---\n"
-        yaml_front_matter += f"layout: post\n"
-        yaml_front_matter += f"title: \"{front_matter['title']}\"\n"
+        yaml_front_matter += f"title: '{front_matter['title']}'\n"
         yaml_front_matter += f"date: {front_matter['date']}\n"
         
-        if front_matter.get("categories"):
-            yaml_front_matter += f"categories: {front_matter['categories']}\n"
+        # permalink 생성 (기존 형식과 맞춤)
+        date_parts = front_matter['date'].split('-')
+        year, month, day = date_parts[0], date_parts[1], date_parts[2]
+        safe_title = re.sub(r'[^\w\s-]', '', front_matter['title'].lower())
+        safe_title = re.sub(r'[-\s]+', '-', safe_title)
+        safe_title = safe_title.strip('-')
+        permalink = f"/posts/{year}/{month}/{safe_title}/"
+        yaml_front_matter += f"permalink: {permalink}\n"
         
+        # tags 형식을 기존과 맞춤 (리스트 형식)
         if front_matter.get("tags"):
-            tags_str = " ".join(front_matter["tags"])
-            yaml_front_matter += f"tags: [{tags_str}]\n"
+            yaml_front_matter += "tags:\n"
+            for tag in front_matter["tags"]:
+                yaml_front_matter += f"  - {tag}\n"
+        
+        # categories가 있으면 tags에 추가
+        if front_matter.get("categories"):
+            if not yaml_front_matter.endswith("tags:\n"):
+                yaml_front_matter += "tags:\n"
+            for category in front_matter["categories"]:
+                yaml_front_matter += f"  - {category}\n"
         
         yaml_front_matter += "---\n\n"
         
