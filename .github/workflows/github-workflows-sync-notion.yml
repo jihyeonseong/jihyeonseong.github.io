@@ -1,0 +1,43 @@
+name: Sync Notion to GitHub Blog
+
+on:
+  # 매일 자정에 자동 실행 (한국 시간 기준 오전 9시)
+  schedule:
+    - cron: '0 0 * * *'
+  
+  # 수동 실행 가능
+  workflow_dispatch:
+  
+  # Push 이벤트 발생 시 (선택사항)
+  # push:
+  #   branches:
+  #     - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Sync Notion to GitHub
+      env:
+        NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        GITHUB_REPO: ${{ github.repository }}
+        BLOG_POSTS_PATH: "_posts"
+      run: |
+        python notion_to_github.py
