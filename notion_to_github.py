@@ -44,20 +44,31 @@ class NotionToGitHub:
         """Notion 데이터베이스에서 발행된(Published) 페이지 가져오기"""
         url = f"https://api.notion.com/v1/databases/{self.notion_database_id}/query"
         
-        # Published 상태인 페이지만 필터링
-        payload = {
-            "filter": {
-                "property": "Status",
-                "status": {
-                    "equals": "Published"
-                }
-            }
-        }
+        # 먼저 모든 페이지를 가져와서 디버깅
+        payload = {}
         
-        response = requests.post(url, headers=self.notion_headers, json=payload)
-        response.raise_for_status()
-        
-        return response.json().get("results", [])
+        try:
+            response = requests.post(url, headers=self.notion_headers, json=payload)
+            response.raise_for_status()
+            
+            all_pages = response.json().get("results", [])
+            print(f"📄 총 {len(all_pages)}개의 페이지를 찾았습니다.")
+            
+            # Published 상태인 페이지만 필터링
+            published_pages = []
+            for page in all_pages:
+                properties = page.get("properties", {})
+                status_prop = properties.get("Status")
+                if status_prop and status_prop.get("status", {}).get("name") == "Published":
+                    published_pages.append(page)
+            
+            return published_pages
+            
+        except requests.exceptions.HTTPError as e:
+            print(f"❌ Notion API 에러: {e}")
+            print(f"   URL: {url}")
+            print(f"   응답: {response.text}")
+            raise
     
     def get_page_content(self, page_id: str) -> List[Dict[str, Any]]:
         """페이지의 블록 내용 가져오기"""
