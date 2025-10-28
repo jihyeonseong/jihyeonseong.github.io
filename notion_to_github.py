@@ -200,18 +200,17 @@ class NotionToGitHub:
         permalink = f"/posts/{year}/{month}/{safe_title}/"
         yaml_front_matter += f"permalink: {permalink}\n"
         
-        # tags 형식을 기존과 맞춤 (리스트 형식)
+        # tags와 categories를 모두 tags에 통합
+        all_tags = []
         if front_matter.get("tags"):
-            yaml_front_matter += "tags:\n"
-            for tag in front_matter["tags"]:
-                yaml_front_matter += f"  - {tag}\n"
-        
-        # categories가 있으면 tags에 추가
+            all_tags.extend(front_matter["tags"])
         if front_matter.get("categories"):
-            if not yaml_front_matter.endswith("tags:\n"):
-                yaml_front_matter += "tags:\n"
-            for category in front_matter["categories"]:
-                yaml_front_matter += f"  - {category}\n"
+            all_tags.extend(front_matter["categories"])
+        
+        if all_tags:
+            yaml_front_matter += "tags:\n"
+            for tag in all_tags:
+                yaml_front_matter += f"  - {tag}\n"
         
         yaml_front_matter += "---\n\n"
         
