@@ -1,14 +1,96 @@
 {% include base_path %}
 
-{% if page.previous or page.next %}
+{% comment %} Get the current post's category (first tag or first category) {% endcomment %}
+{% assign current_category = "" %}
+{% if page.categories and page.categories.size > 0 %}
+  {% assign current_category = page.categories[0] %}
+{% elsif page.tags and page.tags.size > 0 %}
+  {% assign current_category = page.tags[0] %}
+{% endif %}
+
+{% comment %} First, find the current post in site.posts {% endcomment %}
+{% assign current_post = nil %}
+{% for post in site.posts %}
+  {% if post.url == page.url or post.id == page.id or post.path == page.path %}
+    {% assign current_post = post %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} If current post not found, try to match by date and title {% endcomment %}
+{% unless current_post %}
+  {% for post in site.posts %}
+    {% if post.date == page.date and post.title == page.title %}
+      {% assign current_post = post %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endunless %}
+
+{% comment %} Collect all posts in the same category and sort by date {% endcomment %}
+{% assign category_posts = "" | split: "," %}
+{% for post in site.posts %}
+  {% assign post_category = "" %}
+  {% if post.categories and post.categories.size > 0 %}
+    {% assign post_category = post.categories[0] %}
+  {% elsif post.tags and post.tags.size > 0 %}
+    {% assign post_category = post.tags[0] %}
+  {% endif %}
+  
+  {% if post_category == current_category and current_category != "" %}
+    {% assign category_posts = category_posts | push: post %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} Sort posts by date (newest first) {% endcomment %}
+{% assign sorted_category_posts = category_posts | sort: "date" | reverse %}
+
+{% comment %} Find current post index and get previous/next {% endcomment %}
+{% assign category_previous = nil %}
+{% assign category_next = nil %}
+{% assign current_index = -1 %}
+
+{% comment %} Find current post index in sorted category posts {% endcomment %}
+{% if current_post %}
+  {% for post in sorted_category_posts %}
+    {% if post.url == current_post.url or post.id == current_post.id or post.path == current_post.path %}
+      {% assign current_index = forloop.index0 %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% if current_index >= 0 %}
+  {% comment %} Previous = older post (higher index) {% endcomment %}
+  {% assign next_index = current_index | plus: 1 %}
+  {% if next_index < sorted_category_posts.size %}
+    {% assign category_previous = sorted_category_posts[next_index] %}
+  {% endif %}
+  
+  {% comment %} Next = newer post (lower index) {% endcomment %}
+  {% if current_index > 0 %}
+    {% assign prev_index = current_index | minus: 1 %}
+    {% assign category_next = sorted_category_posts[prev_index] %}
+  {% endif %}
+{% endif %}
+
+{% if category_previous or category_next %}
   <nav class="pagination">
-    {% if page.previous %}
-      <a href="{{ base_path }}{{ page.previous.url }}" class="pagination--pager" title="{{ page.previous.title | markdownify | strip_html }}">{{ site.data.ui-text[site.locale].pagination_previous | default: "Previous" }}</a>
+    {% if category_previous %}
+      {% assign prev_url = category_previous.url %}
+      {% unless prev_url contains base_path %}
+        {% assign prev_url = base_path | append: prev_url %}
+      {% endunless %}
+      <a href="{{ prev_url }}" class="pagination--pager" title="{{ category_previous.title | markdownify | strip_html }}">{{ site.data.ui-text[site.locale].pagination_previous | default: "Previous" }}</a>
     {% else %}
       <a href="#" class="pagination--pager disabled">{{ site.data.ui-text[site.locale].pagination_previous | default: "Previous" }}</a>
     {% endif %}
-    {% if page.next %}
-      <a href="{{ base_path }}{{ page.next.url }}" class="pagination--pager" title="{{ page.next.title | markdownify | strip_html }}">{{ site.data.ui-text[site.locale].pagination_next | default: "Next" }}</a>
+    {% if category_next %}
+      {% assign next_url = category_next.url %}
+      {% unless next_url contains base_path %}
+        {% assign next_url = base_path | append: next_url %}
+      {% endunless %}
+      <a href="{{ next_url }}" class="pagination--pager" title="{{ category_next.title | markdownify | strip_html }}">{{ site.data.ui-text[site.locale].pagination_next | default: "Next" }}</a>
     {% else %}
       <a href="#" class="pagination--pager disabled">{{ site.data.ui-text[site.locale].pagination_next | default: "Next" }}</a>
     {% endif %}

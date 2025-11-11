@@ -8,12 +8,67 @@ redirect_from:
 ---
 
 {% include base_path %}
-{% capture written_year %}'None'{% endcapture %}
+
+{% comment %} Group posts by category {% endcomment %}
+{% assign categories = "" | split: "," %}
 {% for post in site.posts %}
-  {% capture year %}{{ post.date | date: '%Y' }}{% endcapture %}
-  {% if year != written_year %}
-    <h2 id="{{ year | slugify }}" class="archive__subtitle">{{ year }}</h2>
-    {% capture written_year %}{{ year }}{% endcapture %}
+  {% assign post_category = "" %}
+  {% if post.categories and post.categories.size > 0 %}
+    {% assign post_category = post.categories[0] %}
+  {% elsif post.tags and post.tags.size > 0 %}
+    {% assign post_category = post.tags[0] %}
   {% endif %}
-  {% include archive-single.html %}
+  
+  {% if post_category != "" %}
+    {% unless categories contains post_category %}
+      {% assign categories = categories | push: post_category %}
+    {% endunless %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} Sort categories alphabetically {% endcomment %}
+{% assign sorted_categories = categories | sort %}
+
+{% comment %} Display posts grouped by category, sorted by date within each category {% endcomment %}
+{% for category in sorted_categories %}
+  <h2 id="{{ category | slugify }}" class="archive__subtitle">{{ category }}</h2>
+  {% assign category_posts = "" | split: "," %}
+  {% for post in site.posts %}
+    {% assign post_category = "" %}
+    {% if post.categories and post.categories.size > 0 %}
+      {% assign post_category = post.categories[0] %}
+    {% elsif post.tags and post.tags.size > 0 %}
+      {% assign post_category = post.tags[0] %}
+    {% endif %}
+    
+    {% if post_category == category %}
+      {% assign category_posts = category_posts | push: post %}
+    {% endif %}
+  {% endfor %}
+  
+  {% comment %} Sort posts by date (newest first) {% endcomment %}
+  {% assign sorted_posts = category_posts | sort: "date" | reverse %}
+  {% for post in sorted_posts %}
+    {% include archive-single.html %}
+  {% endfor %}
+  <hr />
+{% endfor %}
+
+{% comment %} Display posts without category at the end {% endcomment %}
+{% assign has_uncategorized = false %}
+{% for post in site.posts %}
+  {% assign post_category = "" %}
+  {% if post.categories and post.categories.size > 0 %}
+    {% assign post_category = post.categories[0] %}
+  {% elsif post.tags and post.tags.size > 0 %}
+    {% assign post_category = post.tags[0] %}
+  {% endif %}
+  
+  {% if post_category == "" %}
+    {% unless has_uncategorized %}
+      <h2 id="uncategorized" class="archive__subtitle">Uncategorized</h2>
+      {% assign has_uncategorized = true %}
+    {% endunless %}
+    {% include archive-single.html %}
+  {% endif %}
 {% endfor %}
