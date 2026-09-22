@@ -3,7 +3,7 @@ layout: page
 title: projects
 permalink: /projects/
 description: A growing collection of your cool projects.
-nav: true
+nav: false # 나중에 쓸 때 true 로
 nav_order: 3
 display_categories: [work, fun]
 horizontal: false

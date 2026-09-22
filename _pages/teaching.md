@@ -3,7 +3,7 @@ layout: page
 permalink: /teaching/
 title: teaching
 description: Teaching assistantships at the Kim Jaechul Graduate School of AI, KAIST.
-nav: true
+nav: false # 나중에 쓸 때 true 로
 nav_order: 6
 ---
 
