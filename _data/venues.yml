@@ -1,9 +1,22 @@
-"AJP":
-  url: https://aapt.scitation.org/journal/ajp
+"ICML":
+  url: https://icml.cc/
   color: "#00369f"
 
-"PhysRev":
-  url: https://journals.aps.org/
+"AAAI":
+  url: https://aaai.org/conference/aaai/
+  color: "#1f3d7a"
 
-"Vision":
-  color: "#009f36"
+"IJCAI":
+  url: https://www.ijcai.org/
+  color: "#0b5c4a"
+
+"CSUR":
+  url: https://dl.acm.org/journal/csur
+  color: "#7a1f1f"
+
+"KRCP":
+  url: https://www.krcp-ksn.org/
+  color: "#5c3a7a"
+
+"BigComp":
+  color: "#4a4a4a"

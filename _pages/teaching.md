@@ -2,14 +2,11 @@
 layout: page
 permalink: /teaching/
 title: teaching
-description: Course materials, schedules, and resources for classes taught.
+description: Teaching assistantships at the Kim Jaechul Graduate School of AI, KAIST.
 nav: true
 nav_order: 6
-calendar: true
 ---
 
-This page displays a collection of courses with detailed schedules, materials, and resources. You can organize your courses by years, terms, or topics.
-
-{% include calendar.liquid calendar_id='test@gmail.com' timezone='Asia/Shanghai' %}
-
-{% include courses.liquid %}
+- **Interpretability and Interactivity in AI** (Prof. Jaesik Choi) — Fall 2025
+- **Deep Learning** (Prof. Jaegul Choo) — Spring 2025
+- **Deep Learning** (Prof. Jaesik Choi) — Spring 2024
