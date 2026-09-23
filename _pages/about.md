@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: Ph.D. student, Kim Jaechul Graduate School of AI, KAIST. Advised by Prof. Jaesik Choi.
+subtitle: Ph.D. student, Kim Jaechul Graduate School of AI, KAIST.
 
 profile:
   align: right
@@ -27,9 +27,9 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-I am a Ph.D. student in Artificial Intelligence at the Kim Jaechul Graduate School of AI, KAIST, advised by Prof. Jaesik Choi. I received my M.S. in Artificial Intelligence from KAIST and my B.S. in Computer Engineering from Ewha Womans University.
+I am a Ph.D. student in Artificial Intelligence at the Kim Jaechul Graduate School of AI, KAIST. I received my M.S. in Artificial Intelligence from KAIST AI and my B.S. in Computer Engineering from Ewha Womans University.
 
-My research is on **uncertainty quantification under distribution shift**, **time-series representation learning under change points**, and **explainable AI for clinical decision support**. My work has appeared at ICML, AAAI, IJCAI, and ACM Computing Surveys.
+My current research is on **uncertainty quantification under distribution shift**, **time-series representation learning under change points**, and **explainable AI for clinical decision support**. 
 
 I also work on applied problems with partners outside the lab: acute kidney injury prediction with Seoul National University Bundang Hospital, and time-series problems in industry with Samsung Device Solutions, HiDeep, and POSCO.
 
