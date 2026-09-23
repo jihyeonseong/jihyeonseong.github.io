@@ -1,8 +1,11 @@
 # this file contains the social media links and usernames of the author
 # the socials will be displayed in the order they are defined here
 # for more information, please refer to the documentation of jekyll-socials plugin: https://github.com/george-gca/jekyll-socials
+cv_pdf: /assets/pdf/cv.pdf # path to your CV PDF file
 email: jihyeon.seong@kaist.ac.kr # your email address
 scholar_userid: DdSo9q4AAAAJ # your Google Scholar ID
 github_username: jihyeonseong # your GitHub username
 linkedin_username: jihyeon-seong-302571267 # your LinkedIn username
-rss_icon: true # comment this line to hide the RSS icon
+#x_username: # X(Twitter) 아이디. 계정이 생기면 아이디를 적고 주석을 푼다.
+#            비워둔 채 주석만 풀면 https://twitter.com/ 로 가는 죽은 링크가 된다.
+#rss_icon: true # 이 사이트 자체 피드(/feed.xml) 아이콘. 다시 쓰려면 주석을 푼다
