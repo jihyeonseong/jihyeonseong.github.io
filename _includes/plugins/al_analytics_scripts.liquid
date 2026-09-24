@@ -1,0 +1,21 @@
+{% comment %}
+  al_folio_core 의 _includes/plugins/al_analytics_scripts.liquid 를 로컬에서 덮어쓴 것이다.
+  원본은 al_analytics_scripts 태그 한 줄뿐이다 — 그 줄은 그대로 두고 GoatCounter 만 덧붙였다.
+  al_analytics gem 이 GoatCounter 를 지원하지 않아서다.
+
+  - 코드명은 _config.yml 의 analytics.goatcounter.
+  - production 빌드에서만 넣는다 — 로컬 프리뷰(development) 방문이 조회수에 섞이지 않게.
+
+  gem 을 올릴 때는
+  `bundle exec al-folio upgrade overrides diff _includes/plugins/al_analytics_scripts.liquid`
+  로 원본이 바뀌었는지 확인한다.
+{% endcomment %}
+{% al_analytics_scripts %}
+{% if site.analytics.goatcounter and jekyll.environment == 'production' %}
+  <!-- GoatCounter -->
+  <script
+    data-goatcounter="https://{{ site.analytics.goatcounter }}.goatcounter.com/count"
+    async
+    src="https://gc.zgo.at/count.js"
+  ></script>
+{% endif %}
