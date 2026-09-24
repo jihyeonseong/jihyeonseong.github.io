@@ -7,7 +7,7 @@ first_name: Jihyeon
 middle_name:
 last_name: Seong
 contact_note: >
-  You can even add a little note about which of these is the best way to reach you.
+  Email is the fastest way to reach me.
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
   Ph.D. student in Artificial Intelligence at KAIST. Uncertainty quantification under distribution shift,
   time-series representation learning, and explainable AI for clinical decision support.
@@ -339,7 +339,8 @@ jekyll-archives:
     enabled: [year, tags, categories] # enables year, tag and category archives (remove if you need to disable one of them).
 
 display_tags: [] # these tags will be displayed on the front page of your blog
-display_categories: [] # these categories will be displayed on the front page of your blog
+display_categories: [] # /blog/ 상단 섹션 칩. 글이 없는 카테고리를 적으면 링크가 404 가 된다 —
+                       # 첫 글을 올릴 때 [papers, math] 처럼 채운다
 
 # -----------------------------------------------------------------------------
 # Jekyll Scholar

@@ -1,5 +1,8 @@
-github_users:
-  - jihyeonseong
+# github_users 를 두면 계정 통계 카드가 뜨는데, 그 카드는 공개 repo 커밋만 센다.
+# private repo(claude-cowork·snubh-aki 등)와 연구실 서버 git 이 빠져 실제보다 작게 보이므로 뺀다.
+# 다시 쓰려면 아래 두 줄의 주석을 푼다.
+#github_users:
+#  - jihyeonseong
 
 repo_description_lines_max: 2
 
