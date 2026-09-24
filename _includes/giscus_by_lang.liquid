@@ -1,0 +1,208 @@
+{% comment %}
+  언어별로 분리된 giscus 댓글.
+
+  - EN 이면 영어 스레드 하나(UI 영어).
+  - KO 면 한국어 스레드 + 영어 스레드 둘 다(UI 한국어). 한국어 독자는 양쪽을 다 보고,
+    영어 독자에게는 한국어 댓글이 보이지 않는다.
+  - 스레드는 URL 경로로 구분한다. 영어 = "blog/2026/xxx/" (giscus 의 pathname 규칙과 같아
+    예전 설정과 호환된다), 한국어 = "ko:blog/2026/xxx/".
+
+  공식 client.js 를 쓰지 않는 이유: client.js 는 한 페이지에 창 하나만 전제한다 —
+  document.querySelector('.giscus') 로 첫 컨테이너만 잡고, 높이 조절 메시지를 받을 때
+  event.source 를 확인하지 않아 창이 둘이면 서로의 높이를 덮어쓴다. 그래서 client.js 와
+  같은 방식(같은 URL 파라미터, 같은 세션 키 "giscus-session")으로 iframe 을 직접 만든다.
+
+  사이트 다크/라이트 토글: al-folio 의 theme.js 는 첫 giscus 창에만 테마를 보낸다.
+  여기서 <html data-theme> 변화를 감지해 모든 창에 보낸다.
+{% endcomment %}
+<div id="giscus_thread" style="max-width: {{ site.max_width }}; margin: 0 auto;"></div>
+<style>
+  #giscus_thread .giscus-lang-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 2rem 0 0.5rem;
+  }
+  #giscus_thread .giscus,
+  #giscus_thread iframe.giscus-frame {
+    width: 100%;
+    min-height: 150px;
+  }
+  #giscus_thread iframe.giscus-frame {
+    border: none;
+    color-scheme: light dark;
+  }
+</style>
+<script>
+  (function () {
+    var ORIGIN = "https://giscus.app";
+    var SESSION_KEY = "giscus-session";
+    var root = document.getElementById("giscus_thread");
+    if (!root) return;
+
+    var base = {
+      repo: {{ site.giscus.repo | jsonify }},
+      repoId: {{ site.giscus.repo_id | jsonify }},
+      category: {{ site.giscus.category | jsonify }},
+      categoryId: {{ site.giscus.category_id | jsonify }},
+      strict: "{{ site.giscus.strict | default: 1 }}",
+      reactionsEnabled: "{{ site.giscus.reactions_enabled | default: 1 }}",
+      emitMetadata: "{{ site.giscus.emit_metadata | default: 0 }}",
+      inputPosition: {{ site.giscus.input_position | default: "bottom" | jsonify }},
+    };
+    var DARK = {{ site.giscus.dark_theme | default: "dark" | jsonify }};
+    var LIGHT = {{ site.giscus.light_theme | default: "light" | jsonify }};
+
+    // --- 세션: client.js 와 같은 방식·같은 키 (로그인 후 ?giscus=... 로 돌아온다) ---
+    var url = new URL(location.href);
+    var session = url.searchParams.get("giscus") || "";
+    var saved = null;
+    try {
+      saved = localStorage.getItem(SESSION_KEY);
+    } catch (e) {}
+    url.searchParams.delete("giscus");
+    url.hash = "";
+    var cleaned = url.toString();
+    if (session) {
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      } catch (e) {}
+      history.replaceState(undefined, document.title, cleaned);
+    } else if (saved) {
+      try {
+        session = JSON.parse(saved);
+      } catch (e) {
+        localStorage.removeItem(SESSION_KEY);
+        session = "";
+      }
+    }
+
+    // pathname 규칙은 client.js 와 동일
+    var path = location.pathname.length < 2 ? "index" : location.pathname.substring(1).replace(/\.\w+$/, "");
+    var TERM_EN = path;
+    var TERM_KO = "ko:" + path;
+
+    var descMeta = document.querySelector("meta[property='og:description'],meta[name='description']");
+    var description = descMeta ? descMeta.content : "";
+
+    function currentTheme() {
+      var t = null;
+      try {
+        t = localStorage.getItem("theme");
+      } catch (e) {}
+      t = t || document.documentElement.getAttribute("data-theme") || "system";
+      if (t === "dark") return DARK;
+      if (t === "light") return LIGHT;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+    }
+
+    var frames = [];
+    var mode = null;
+
+    function addFrame(id, term, uiLang, heading) {
+      var wrap = document.createElement("div");
+      wrap.id = id;
+      wrap.className = "giscus";
+      if (heading) {
+        var h = document.createElement("div");
+        h.className = "giscus-lang-heading";
+        h.textContent = heading;
+        root.appendChild(h);
+      }
+      var params = {
+        origin: cleaned + "#" + id,
+        session: session || "",
+        theme: currentTheme(),
+        reactionsEnabled: base.reactionsEnabled,
+        emitMetadata: base.emitMetadata,
+        inputPosition: base.inputPosition,
+        repo: base.repo,
+        repoId: base.repoId,
+        category: base.category,
+        categoryId: base.categoryId,
+        strict: base.strict,
+        description: description,
+        backLink: cleaned,
+        term: term,
+      };
+      var iframe = document.createElement("iframe");
+      iframe.className = "giscus-frame giscus-frame--loading";
+      iframe.title = "Comments";
+      iframe.setAttribute("scrolling", "no");
+      iframe.setAttribute("allow", "clipboard-write");
+      iframe.style.opacity = "0";
+      iframe.addEventListener("load", function () {
+        iframe.style.removeProperty("opacity");
+        iframe.classList.remove("giscus-frame--loading");
+      });
+      iframe.src = ORIGIN + "/" + uiLang + "/widget?" + new URLSearchParams(params);
+      wrap.appendChild(iframe);
+      root.appendChild(wrap);
+      frames.push({ iframe: iframe, params: params, uiLang: uiLang });
+    }
+
+    function render(lang) {
+      if (lang === mode) return;
+      mode = lang;
+      root.innerHTML = "";
+      frames = [];
+      if (lang === "ko") {
+        addFrame("giscus-ko", TERM_KO, "ko", "한국어 댓글");
+        addFrame("giscus-en", TERM_EN, "ko", "English comments");
+      } else {
+        addFrame("giscus-en", TERM_EN, "en", null);
+      }
+    }
+
+    function frameOf(source) {
+      for (var i = 0; i < frames.length; i++) {
+        if (frames[i].iframe.contentWindow === source) return frames[i];
+      }
+      return null;
+    }
+
+    function reloadWithoutSession() {
+      try {
+        localStorage.removeItem(SESSION_KEY);
+      } catch (e) {}
+      session = "";
+      var current = mode;
+      mode = null;
+      render(current);
+    }
+
+    window.addEventListener("message", function (event) {
+      if (event.origin !== ORIGIN) return;
+      var data = event.data;
+      if (!(data && typeof data === "object" && data.giscus)) return;
+      var f = frameOf(event.source);
+      if (!f) return;
+
+      if (data.giscus.resizeHeight) f.iframe.style.height = data.giscus.resizeHeight + "px";
+      if (data.giscus.signOut) {
+        reloadWithoutSession();
+        return;
+      }
+      var err = data.giscus.error;
+      if (err && /Bad credentials|Invalid state value|State has expired/.test(err) && session) {
+        reloadWithoutSession();
+      }
+    });
+
+    // 사이트 다크/라이트 토글을 모든 창에 반영
+    new MutationObserver(function () {
+      var theme = currentTheme();
+      frames.forEach(function (f) {
+        if (f.iframe.contentWindow) {
+          f.iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: theme } } }, ORIGIN);
+        }
+      });
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+    document.addEventListener("postlangchange", function (e) {
+      render(e.detail.lang);
+    });
+
+    // 토글이 없는 페이지(한 언어짜리 글, page 레이아웃)는 영어 스레드
+    render(window.__postLang || "en");
+  })();
+</script>

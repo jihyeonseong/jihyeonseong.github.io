@@ -17,6 +17,15 @@ Personal website of **Jihyeon Seong**, Ph.D. student in Artificial Intelligence 
 | Publications | `_bibliography/papers.bib` |
 | Repositories page | `_data/repositories.yml` |
 | Blog posts | `_posts/YYYY-MM-DD-title.md` — template in `_drafts/` |
+| EN/KO post toggle, per-language comments | `_includes/post_lang_toggle.liquid`, `_includes/giscus_by_lang.liquid` |
+
+## Bilingual posts
+
+A post can hold both English and Korean in one file. Wrap each language in
+`<div class="lang-en" markdown="1">` / `<div class="lang-ko" markdown="1">`
+(set `title_ko` for the Korean title). An EN/KO toggle appears next to the theme
+toggle. Comments are split by language: EN shows the English thread, KO shows the
+Korean thread and the English thread.
 
 ## Run locally
 

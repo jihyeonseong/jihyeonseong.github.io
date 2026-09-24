@@ -1,0 +1,22 @@
+{% comment %}
+  al_folio_core 의 _includes/plugins/al_comments.liquid 를 로컬에서 덮어쓴 것이다.
+  원본은 `{% al_comments %}` 태그 한 줄로 giscus(또는 disqus)를 붙인다.
+
+  여기서는 두 가지를 붙인다.
+  1) post_lang_toggle.liquid — 한 글 안의 영/한 블록(.lang-en / .lang-ko)을 전환하는
+     EN/KO 토글. 다크모드 버튼 옆에 뜨고, 선택은 localStorage 에 저장된다.
+  2) giscus_by_lang.liquid — 언어별로 분리된 giscus 댓글.
+     EN 이면 영어 스레드만, KO 면 한국어 스레드 + 영어 스레드를 둘 다 보여준다.
+
+  disqus 는 쓰지 않으므로 지원하지 않는다.
+  post·page·book-review 레이아웃이 이 파일을 부르지만, 토글은 post 에서만 켠다.
+  gem 을 올릴 때는
+  `bundle exec al-folio upgrade overrides diff _includes/plugins/al_comments.liquid`
+  로 원본이 바뀌었는지 확인한다.
+{% endcomment %}
+{% if page.layout == 'post' %}
+  {% include post_lang_toggle.liquid %}
+{% endif %}
+{% if page.giscus_comments %}
+  {% include giscus_by_lang.liquid %}
+{% endif %}

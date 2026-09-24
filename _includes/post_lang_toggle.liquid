@@ -1,0 +1,106 @@
+{% comment %}
+  글 하나에 영어·한국어를 같이 쓰고, EN/KO 토글로 보이는 쪽만 바꾼다.
+
+  글 쓰는 법:
+    title: English title
+    title_ko: 한국어 제목        # 선택. KO 일 때 제목을 바꿔 보여준다
+
+    <div class="lang-en" markdown="1">
+    영어 본문
+    </div>
+
+    <div class="lang-ko" markdown="1">
+    한국어 본문
+    </div>
+
+  - 두 언어가 다 있는 글에서만 토글이 뜬다. 한쪽만 있으면 그 언어로 보여준다.
+  - 처음 방문자는 브라우저 언어(ko*)면 KO, 아니면 EN. 이후 선택은 localStorage("post-lang").
+  - 언어가 바뀌면 document 에 "postlangchange" 이벤트를 쏜다 — 댓글(giscus_by_lang)이 듣는다.
+{% endcomment %}
+<style>
+  html[data-post-lang="en"] .post-content .lang-ko,
+  html[data-post-lang="ko"] .post-content .lang-en {
+    display: none !important;
+  }
+  #lang-toggle {
+    background: none;
+    border: 0;
+    padding: 0 0.5rem;
+    cursor: pointer;
+    color: var(--global-text-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  #lang-toggle:hover {
+    color: var(--global-theme-color);
+  }
+</style>
+<script>
+  (function () {
+    var KEY = "post-lang";
+    var content = document.querySelector(".post-content") || document;
+    var hasEn = !!content.querySelector(".lang-en");
+    var hasKo = !!content.querySelector(".lang-ko");
+    var titleEl = document.querySelector(".post-title");
+    var titleEn = titleEl ? titleEl.textContent.trim() : "";
+    var titleKo = {{ page.title_ko | default: "" | jsonify }};
+    var btn = null;
+
+    function preferred() {
+      try {
+        var saved = localStorage.getItem(KEY);
+        if (saved === "en" || saved === "ko") return saved;
+      } catch (e) {}
+      return (navigator.language || "").toLowerCase().indexOf("ko") === 0 ? "ko" : "en";
+    }
+
+    // 원하는 언어가 이 글에 없으면 있는 쪽으로
+    function effective(want) {
+      if (want === "ko" && !hasKo && hasEn) return "en";
+      if (want === "en" && !hasEn && hasKo) return "ko";
+      return want;
+    }
+
+    function apply(want, broadcast) {
+      var lang = effective(want);
+      if (hasEn && hasKo) document.documentElement.setAttribute("data-post-lang", lang);
+      if (titleEl && titleKo) titleEl.textContent = lang === "ko" ? titleKo : titleEn;
+      if (btn) {
+        btn.textContent = lang === "ko" ? "KO" : "EN";
+        btn.title = lang === "ko" ? "Read in English" : "한국어로 보기";
+      }
+      window.__postLang = lang;
+      if (broadcast) document.dispatchEvent(new CustomEvent("postlangchange", { detail: { lang: lang } }));
+    }
+
+    if (hasEn && hasKo) {
+      btn = document.createElement("button");
+      btn.id = "lang-toggle";
+      btn.type = "button";
+      btn.setAttribute("aria-label", "Switch post language");
+      btn.addEventListener("click", function () {
+        var next = window.__postLang === "ko" ? "en" : "ko";
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {}
+        apply(next, true);
+      });
+
+      // 다크모드 버튼 바로 앞에 끼운다. 못 찾으면 글 머리에 둔다.
+      var themeBtn = document.getElementById("light-toggle");
+      var themeLi = themeBtn && themeBtn.closest("li");
+      if (themeLi) {
+        var li = document.createElement("li");
+        li.className = "toggle-container";
+        li.appendChild(btn);
+        themeLi.parentNode.insertBefore(li, themeLi);
+      } else {
+        var header = document.querySelector(".post-header");
+        if (header) header.appendChild(btn);
+      }
+    }
+
+    apply(preferred(), false);
+  })();
+</script>
