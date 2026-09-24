@@ -1,0 +1,100 @@
+{% comment %}
+  al_folio_core 의 _includes/related_posts.liquid 를 로컬에서 덮어쓴 것이다.
+
+  왜: 원본은 `site.related_posts` 를 쓰는데, _config.yml 의 lsi 가 false 라
+  그 값은 "관련 글"이 아니라 그냥 최근 글이다. 여기서는 현재 글과 tags·categories 를
+  많이 공유하는 글부터 고른다. 겹치는 글이 모자라면 최근 글로 채운다.
+
+  마크업(클래스·구조)은 원본과 동일하게 유지했다. gem 을 올릴 때는
+  `bundle exec al-folio upgrade overrides diff _includes/related_posts.liquid`
+  로 원본이 바뀌었는지 확인한다.
+{% endcomment %}
+
+{% assign max_related = site.related_blog_posts.max_related | default: 5 %}
+{% assign page_terms = page.tags | default: empty | concat: page.categories | default: empty %}
+
+{% assign related_posts = "" | split: "" %}
+{% assign picked_urls = "" %}
+
+{%- comment -%} 1) 겹치는 항목이 많은 순서로 담는다 (6개부터 1개까지) {%- endcomment -%}
+{% if page_terms.size > 0 %}
+  {% for step in (1..6) %}
+    {% assign wanted = 7 | minus: step %}
+    {% for post in site.posts %}
+      {% if related_posts.size < max_related %}
+        {% unless post.url == page.url or picked_urls contains post.url %}
+          {% assign post_terms = post.tags | default: empty | concat: post.categories | default: empty %}
+          {% assign score = 0 %}
+          {% for term in page_terms %}
+            {% if post_terms contains term %}
+              {% assign score = score | plus: 1 %}
+            {% endif %}
+          {% endfor %}
+          {% if score == wanted %}
+            {% assign single = site.posts | where: "url", post.url %}
+            {% assign related_posts = related_posts | concat: single %}
+            {% assign picked_urls = picked_urls | append: post.url | append: "|" %}
+          {% endif %}
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+
+{%- comment -%} 2) 모자라면 최근 글로 채운다 {%- endcomment -%}
+{% for post in site.posts %}
+  {% if related_posts.size < max_related %}
+    {% unless post.url == page.url or picked_urls contains post.url %}
+      {% assign single = site.posts | where: "url", post.url %}
+      {% assign related_posts = related_posts | concat: single %}
+      {% assign picked_urls = picked_urls | append: post.url | append: "|" %}
+    {% endunless %}
+  {% endif %}
+{% endfor %}
+
+{% if related_posts != empty %}
+  {% if page.layout == 'post' %}
+    <br>
+    <hr>
+    <br>
+  {% endif %}
+
+  <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2>
+  <p class="mb-2">Here are some more articles you might like to read next:</p>
+
+  <ul class="list-disc pl-7 my-3 space-y-2 marker:text-[var(--global-theme-color)]">
+    {% for post in related_posts %}
+      <li class="leading-relaxed">
+        {% if post.redirect == blank %}
+          <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="{{ post.url | relative_url }}">
+            {{- post.title -}}
+          </a>
+        {% elsif post.redirect contains '://' %}
+          <a
+            class="underline decoration-1 hover:text-[var(--global-hover-color)]"
+            href="{{ post.redirect }}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{- post.title -}}
+          </a>
+          <svg width="1rem" height="1rem" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M17 13.5v6H5v-12h6m3-3h6v6m0-6-9 9" class="icon_svg-stroke" stroke="#999" stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        {% else %}
+          <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="{{ post.redirect | relative_url }}">
+            {{- post.title -}}
+          </a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% if site.newsletter.enabled and site.footer_fixed %}
+  <p class="mb-2" style="margin-top: 1.5rem !important">Subscribe to be notified of future articles:</p>
+  {% if site.plugins contains 'al_newsletter' %}
+    {% include plugins/al_newsletter_form_left.liquid %}
+  {% else %}
+    {% include newsletter.liquid left=true %}
+  {% endif %}
+{% endif %}

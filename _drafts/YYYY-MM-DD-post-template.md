@@ -6,7 +6,9 @@ description: 한 줄 요약 (블로그 목록 카드에 뜬다)
 categories: papers      # 섹션. _config.yml 의 display_categories 와 이름을 맞춘다
 tags: [conformal-prediction, time-series]   # 세부 주제. 여러 개 가능
 # featured: true        # 블로그 맨 위에 고정하고 싶을 때
-related_posts: false
+giscus_comments: true   # 이 글에 댓글창을 붙인다. 이모지 리액션(👍❤️🎉)도 같이 붙는다
+                        # (_config.yml 의 giscus.reactions_enabled: 1)
+# related_posts: false  # 글 아래 '관련 글' 을 이 글에서만 끄고 싶을 때
 ---
 
 본문. 수식은 $$E = mc^2$$ 처럼 쓰면 MathJax 가 렌더한다.
