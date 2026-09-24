@@ -26,6 +26,15 @@ pagination:
   <div class="header-bar">
     <h1>{{ site.blog_name }}</h1>
     <h2>{{ site.blog_description }}</h2>
+    {% assign gc_paths = "" %}
+    {% for post in site.posts %}
+      {% unless post.redirect %}
+        {% assign gc_paths = gc_paths | append: post.url | append: "," %}
+      {% endunless %}
+    {% endfor %}
+    {% if gc_paths != "" %}
+      <p data-gc-sum="{{ gc_paths }}" data-gc-format="{n} view{s} across all posts" hidden></p>
+    {% endif %}
   </div>
   {% endif %}
 

@@ -34,3 +34,5 @@ My current research is on **uncertainty quantification under distribution shift*
 I also work on applied problems with partners outside the lab: acute kidney injury prediction with Seoul National University Bundang Hospital, and time-series problems in industry with Samsung Device Solutions, HiDeep, and POSCO.
 
 On the [blog](/blog/) I keep notes on what I am studying and on the papers I read.
+
+<p data-gc-total data-gc-format="{n} visit{s} to this site" hidden></p>
