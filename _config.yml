@@ -130,7 +130,7 @@ enable_simple_analytics: false # Simple Analytics identifies a site by its domai
 
 # For Google Search Console, see https://support.google.com/webmasters/answer/9008080?hl=en#meta_tag_verification&zippy=%2Chtml-tag
 google_site_verification: CebDvD6D59JjlKBXB7E1n3j7dSBge6tWTKgUjLXlSUA # Google Search Console 소유권 확인용 (공개 값)
-bing_site_verification: # out your bing-site-verification ID (Bing Webmaster)
+bing_site_verification: 1337A1DD3A8C08952A42C21C1157B451 # Bing Webmaster 소유권 확인용 (공개 값)
 
 # -----------------------------------------------------------------------------
 # Blog
@@ -152,10 +152,11 @@ related_blog_posts:
 # Giscus comments (RECOMMENDED)
 # Follow instructions on https://giscus.app/ to setup for your repo to fill out the information below.
 giscus:
-  repo: # <your-github-user-name>/<your-github-repo-name>
-  repo_id: # leave empty or specify your repo_id (see https://giscus.app/)
-  category: Comments # name of the category under which discussions will be created
-  category_id: # leave empty or specify your category_id (see https://giscus.app/)
+  repo: jihyeonseong/jihyeonseong.github.io
+  repo_id: R_kgDOQKcOoQ # GitHub REST API 의 node_id 값
+  category: Announcements # Discussions 카테고리. giscus 는 관리자만 글을 만들 수 있는 Announcements 를 권한다
+  category_id: # ← 아직 비어 있다. Discussions 를 켠 뒤 https://giscus.app 에서 받아 넣는다.
+                #   이 값이 없으면 댓글창이 뜨지 않는다 (gem 이 네 값을 모두 요구한다)
   mapping: title # identify discussions by post title
   strict: 1 # use strict identification mode
   reactions_enabled: 1 # enable (1) or disable (0) emoji reactions
@@ -465,7 +466,7 @@ lazy_loading_images: true # enables lazy loading of images (recommended)
 # -----------------------------------------------------------------------------
 
 enable_google_verification: true # enables google site verification
-enable_bing_verification: false # enables bing site verification
+enable_bing_verification: true # enables bing site verification
 enable_cookie_consent: false # enables GDPR-compliant cookie consent dialog (https://github.com/orestbida/cookieconsent)
 enable_masonry: true # enables automatic project cards arrangement
 enable_math: true # enables math typesetting (uses MathJax)
